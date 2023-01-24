@@ -11,15 +11,34 @@
 // .finally(mensagemIndependente=>console.log('Vou aparecer de qlqr forma'))
 
 
-async function buscaEndereco(){
+async function buscaEndereco(cep){
+    var mensagemErro = document.getElementById('mensagemErro');
+    mensagemErro.innerHTML='';
     try{
-        var consultaCep= await fetch('https://viacep.com.br/ws/01001000/json/');
+        var consultaCep= await fetch(`https://viacep.com.br/ws/${cep}/json/`);
         var consultaCepConvertida= await consultaCep.json();
+       
+        if(consultaCepConvertida.erro){
+            throw('CEP Inválido!')
+
+        }
+        var cidade = document.getElementById('cidade');
+        var endereco = document.getElementById('endereco');
+        var estado = document.getElementById('estado');
+
+        cidade.value = consultaCepConvertida.localidade;
+        endereco.value = consultaCepConvertida.logradouro;
+        estado.value = consultaCepConvertida.uf;
+
 
         console.log(consultaCepConvertida)
+        return consultaCepConvertida
     }catch(erro){
-        console.log(erro)
+        console.log(erro);
+        mensagemErro.innerHTML='<p> Cep Inválido! </p>';
     }
 }
-buscaEndereco()
 
+
+var cep = document.getElementById('cep');
+cep.addEventListener('focusout', ()=> {buscaEndereco(cep.value)})
